@@ -1,9 +1,7 @@
 const Product = require("./../models/prodModel");
-const APIFeatures = require("./../utils/apiQuery");
 const catchAsyncErrors = require("../utils/catchAsync");
 
 const postProducts = catchAsyncErrors(async (req, res, next) => {
-  const { title, price, description, category, ratings, stocks } = req.body;
   const products = await Product.create(req.body);
 
   res.status(200).json({
@@ -13,36 +11,10 @@ const postProducts = catchAsyncErrors(async (req, res, next) => {
 });
 
 const getProducts = catchAsyncErrors(async (req, res, next) => {
-    let page = req.query.page || 1;
-    let resultsPerPage = 6;
-  let query = req.query.search ? { $text: { $search: req.query.search } } : {};
-  let sortBy = req.query.title
-    ? "req.query.title"
-    : req.query.price
-    ? "req.query.price"
-    : req.query.ratings
-    ? "req.query.ratings"
-    : null;
-
-  var elem = sortBy ? sortBy.split(".")[2] : null;
-  let x;
-  elem === "title"
-    ? (x = { title: req.query.title })
-    : elem === "price"
-    ? (x = { price: req.query.price })
-    : elem === "ratings"
-    ? (x = { ratings: req.query.ratings })
-    : (x = {});
-
-
-  let products = await Product.find(query)
-    .sort(x)
-    .skip(resultsPerPage * (page - 1))
-    .limit(resultsPerPage);
+  let products = await Product.find();
 
   res.status(200).json({
     success: true,
-    resultsPerPage,
     products,
   });
 });
@@ -51,8 +23,6 @@ const getProducts = catchAsyncErrors(async (req, res, next) => {
 const updateProducts = catchAsyncErrors(async (req, res, next) => {
   const products = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
-    runValidators: true,
-    useFindAndModify: false,
   });
   res.status(200).json({
     success: true,
@@ -60,7 +30,4 @@ const updateProducts = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-
-
-
-module.exports = { postProducts, getProducts, updateProducts};
+module.exports = { postProducts, getProducts, updateProducts };
